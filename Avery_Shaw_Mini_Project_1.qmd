@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ---
 title: "Taylor Swift's Reputation Album - Text Analysis"
 subtitle: "Avery Shaw"
