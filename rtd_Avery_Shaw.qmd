@@ -80,55 +80,15 @@ unemp_data |>
   slice_head(n=6)
 ```
 
-## This creates a dygraph for the unemployment data set {auto-animate=true}
-
-. . .
-
-``` {.r code-line-numbers="1|1,2"}
-library(dygraphs)
-dygraph(unemp_data)
-```
-
-## Unemployment Dygraph (with no other arguments)
-
-```{r}
-library(dygraphs)
-dygraph(unemp_data)
-```
-
-## Choosing variables to include {auto-animate="true"}
-
-- You can choose variables within your data set to include in your dygraph using `select()`, and then pipe into `dygraph()`
-
-. . .
-
-``` {.r code-line-numbers="1|2|3"}
-unemp_data |>
-  select(Date, Men, Women) |>
-  dygraph()
-```
-::: footer
-Learn more: [dygraphs](https://rstudio.github.io/dygraphs/articles/dygraphs.html)
-:::
-
-## dygraph with just "Men" and "Women" unemployment rates
-
-```{r}
-unemp_data |>
-  select(Date, Men, Women) |>
-  dygraph()
-```
-
 ## `dygraph()` arguments
 
-``` {.r code-line-numbers="1|2-4|5|6|7|8-9"}
+``` {.r code-line-numbers="2|3-5|6|7-8"}
+library(dygraph)
 dygraph(unemp_data,
     main = "U.S. Unemployment Trends Across Demographic and Educational Groups (2010–2020)",
     xlab = "Year",
     ylab = "Unemployment Rate (%)",
-    periodicity = NULL,
     group = NULL,
-    elementId = NULL, 
     width = 1000,
     height = 600)
 ```
@@ -140,9 +100,7 @@ dygraph(unemp_data,
   main = "U.S. Unemployment Trends Across Demographic and Educational Groups (2010–2020)",
   xlab = "Year",
   ylab = "Unemployment Rate (%)",
-  periodicity = NULL, 
   group = "unemployment",
-  elementId = NULL, 
   width = 1000,
   height = 600)
 ```
@@ -201,7 +159,7 @@ dygraph(unemp_data,
 Learn more: [dyRangeSelector](https://rstudio.github.io/dygraphs/reference/dyRangeSelector.html?q=dyran#null)
 :::
 
-## `dyseries()` {auto-animate="true"}
+## `dySeries()` {auto-animate="true"}
 
 - Changes the appearance of a line on the dygraph
 
@@ -327,47 +285,6 @@ dyOptions(
 ) 
 ```
 
-## `dyAxis()` {auto-animate="true"}
-
-- Customizes the x- and y-axes (labels, ranges, and gridlines)
- 
-. . .
-
-``` {.r code-line-numbers="5|6|7|8|9"}
-unemp_data |>
-  select(Date, Men, Women) |>
-  dygraph(main = "Unemployment Rates by Gender") |>
-  dyOptions(colors = c("blue", "red")) |> 
-  dyAxis(
-    "y",
-    label = "Unemployment Rate (%)",
-    valueRange = c(0, 15),
-    drawGrid = TRUE
-  )
-```
-
-::: footer
-Learn more: [dyAxis](https://rstudio.github.io/dygraphs/reference/dyAxis.html?q=dyAxis#null)
-:::
-
-## Plot with `dyAxis`
-
-```{r}
-unemp_data |>
-  select(Date, Men, Women) |>
-  dygraph(main = "Unemployment Rates by Gender") |>
-  dyOptions(colors = c("blue", "red")) |> 
-  dyAxis(
-    "y",
-    label = "Unemployment Rate (%)",
-    valueRange = c(0, 15),
-    drawGrid = TRUE
-  )
-```
-
-::: footer
-Learn more: [dyAxis](https://rstudio.github.io/dygraphs/reference/dyAxis.html?q=dyAxis#null)
-:::
 
 ## "group" argument in `dygraph` {auto-animate="true"}
 
@@ -428,7 +345,6 @@ unemp_data |>
 - `dyRangeSelector()` – Adds a tool to zoom in on date ranges.
 - `dySeries()` – Customizes individual data lines.
 - `dyOptions()` – Customizes overall graph appearance and behavior.
-- `dyAxis()` – Customizes the x- and y-axes.
 :::
 
 ::: footer
