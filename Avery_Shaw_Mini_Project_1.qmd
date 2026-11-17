@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "Taylor Swift's Reputation Album - Text Analysis"
 subtitle: "Avery Shaw"
@@ -249,3 +250,4 @@ rep_data |>
 ## References
 
 Nevins, J. (2017, November 10). *Blue-eyed Brits and Kanye digs: Decoding Taylor Swift's Reputation*. The Guardian. https://www.theguardian.com/music/musicblog/2017/nov/10/blue-eyed-brits-and-kanye-digs-decoding-taylor-swifts-reputation
+
