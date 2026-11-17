@@ -1,0 +1,444 @@
+---
+title: "R Tip of the Day"
+subtitle: "dygraphs"
+author: "Avery Shaw"
+date: "November 17, 2026"
+format:
+  revealjs: 
+    slide-number: true
+    theme: simple
+    transition: fade
+    transition-speed: fast
+    chalkboard: 
+      buttons: true
+    preview-links: auto
+    incremental: true   
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(gganimate)
+library(ggridges)
+library(dygraphs)
+library(janitor)
+
+# Dataset from https://www.kaggle.com/datasets/aniruddhasshirahatti/us-unemployment-dataset-2010-2020?resource=download
+
+unemp_data <- read_csv(
+  "C:\\Users\\Avery Shaw\\Downloads\\unemployment_data_us.csv",
+  col_names = FALSE,
+  show_col_types = FALSE
+)
+
+unemp_data <- unemp_data |>  
+  row_to_names(row_number = 1) |>
+  mutate(
+    Date = as.Date(paste(Year, Month, "01"), format = "%Y %b %d"),
+    Primary_School= parse_number(Primary_School),
+    High_School = parse_number(High_School),
+    Associates_Degree = parse_number(Associates_Degree),
+    Professional_Degree = parse_number(Professional_Degree),
+    White = parse_number(White),
+    Black = parse_number(Black),
+    Asian = parse_number(Asian),
+    Hispanic = parse_number(Hispanic),
+    Men = parse_number(Men),
+    Women = parse_number(Women)
+  ) |> 
+  select(-Year, -Month)
+
+unemp_data <- unemp_data |>
+  relocate(Date, .before = 1)
+
+```
+
+
+## {auto-animate=true}
+
+::: {style="margin-top: 100px;"}
+What is dygraphs?
+
+::: {.incremental .fade-up}
+- A package for R that provides an interface to the dygraphs JavaScript charting library
+- It is built for creating highly interactive, fast-rendering time-series charts
+- Can only be included in HTML based R Markdown formats
+- Uses a date/time variable as the time index (x-axis), which should be stored in a recognized format, such as R's built-in `Date` class.
+:::
+:::
+
+::: footer
+Learn more: [dygraphs](https://rstudio.github.io/dygraphs/articles/dygraphs.html)
+:::
+
+## Data Set - U.S. Unemployment 2010-2020
+
+```{r}
+unemp_data |> 
+  slice_head(n=6)
+```
+
+## This creates a dygraph for the unemployment data set {auto-animate=true}
+
+. . .
+
+``` {.r code-line-numbers="1|1,2"}
+library(dygraphs)
+dygraph(unemp_data)
+```
+
+## Unemployment Dygraph (with no other arguments)
+
+```{r}
+library(dygraphs)
+dygraph(unemp_data)
+```
+
+## Choosing variables to include {auto-animate="true"}
+
+- You can choose variables within your data set to include in your dygraph using `select()`, and then pipe into `dygraph()`
+
+. . .
+
+``` {.r code-line-numbers="1|2|3"}
+unemp_data |>
+  select(Date, Men, Women) |>
+  dygraph()
+```
+::: footer
+Learn more: [dygraphs](https://rstudio.github.io/dygraphs/articles/dygraphs.html)
+:::
+
+## dygraph with just "Men" and "Women" unemployment rates
+
+```{r}
+unemp_data |>
+  select(Date, Men, Women) |>
+  dygraph()
+```
+
+## `dygraph()` arguments
+
+``` {.r code-line-numbers="1|2-4|5|6|7|8-9"}
+dygraph(unemp_data,
+    main = "U.S. Unemployment Trends Across Demographic and Educational Groups (2010–2020)",
+    xlab = "Year",
+    ylab = "Unemployment Rate (%)",
+    periodicity = NULL,
+    group = NULL,
+    elementId = NULL, 
+    width = 1000,
+    height = 600)
+```
+
+## Plot with `dygraph` arguments
+
+```{r}
+dygraph(unemp_data,
+  main = "U.S. Unemployment Trends Across Demographic and Educational Groups (2010–2020)",
+  xlab = "Year",
+  ylab = "Unemployment Rate (%)",
+  periodicity = NULL, 
+  group = "unemployment",
+  elementId = NULL, 
+  width = 1000,
+  height = 600)
+```
+
+::: footer
+Learn more: [dygraphs](https://rstudio.github.io/dygraphs/articles/dygraphs.html)
+:::
+
+
+
+## `dyRangeSelector()` {auto-animate="true"}
+
+-   Adds a range selector below the graph that lets users zoom in on a specific date range.
+
+. . .
+
+``` {.r code-line-numbers="5|6|7|8-9|10-11"}
+dygraph(unemp_data,
+        width = 1000,
+        height = 600) 
+        |> 
+  dyRangeSelector(
+  dateWindow = c("2010-01-01", "2015-01-01"),
+  height = 40,
+  fillColor = "lightgreen",
+  strokeColor = "navy",
+  keepMouseZoom = TRUE,
+  retainDateWindow = FALSE
+  )
+```
+
+::: footer
+Learn more: [dyRangeSelector](https://rstudio.github.io/dygraphs/reference/dyRangeSelector.html?q=dyran#null)
+:::
+
+## Plot with Range Selector
+
+```{r}
+dygraph(unemp_data,
+        main = "U.S. Unemployment Trends Across Demographic and Educational Groups (2010–2020)",
+        xlab = "Year",
+        ylab = "Unemployment Rate (%)",
+        width = 1000,
+        height = 600) |> 
+  dyRangeSelector(
+  dateWindow = c("2010-01-01", "2015-01-01"),
+  height = 40,
+  fillColor = "lightgreen",
+  strokeColor = "navy",
+  keepMouseZoom = TRUE,
+  retainDateWindow = FALSE
+  )
+```
+
+::: footer
+Learn more: [dyRangeSelector](https://rstudio.github.io/dygraphs/reference/dyRangeSelector.html?q=dyran#null)
+:::
+
+## `dyseries()` {auto-animate="true"}
+
+- Changes the appearance of a line on the dygraph
+
+. . .
+
+``` {.r code-line-numbers="4|5|6|7-9|10-11|13-16"}
+unemp_data |>
+  select(Date, Men, Women) |>
+  dygraph()|>
+  dySeries("Men",
+           label = "Men",
+           color = "blue",
+           stepPlot = FALSE,
+           stemPlot = FALSE,
+           fillGraph = FALSE,
+           strokeWidth = 3,
+           strokePattern = "dashed"
+           )|>
+  dySeries("Women", 
+            label = "Women",
+            color = "red",
+            strokeWidth = 2) |> 
+  dyRangeSelector()
+  
+```
+
+::: footer
+Learn more: [dySeries](https://rstudio.github.io/dygraphs/reference/dySeries.html?q=dyser#null)
+:::
+
+## Plot with `dySeries`
+
+```{r}
+unemp_data |>
+  select(Date, Men, Women) |>
+  dygraph()|>
+  dySeries("Men",
+           label = "Men",
+           color = "blue",
+           stepPlot = FALSE,
+           stemPlot = FALSE,
+           fillGraph = FALSE,
+           strokeWidth = 3,
+           strokePattern = "dashed"
+           )|>
+  dySeries("Women", 
+            label = "Women",
+            color = "red",
+            strokeWidth = 2) |> 
+  dyRangeSelector()
+```
+
+
+::: footer
+Learn more: [dySeries](https://rstudio.github.io/dygraphs/reference/dySeries.html?q=dyser#null)
+:::
+
+## `dyOptions()` {auto-animate="true"}
+
+- Controls the overall appearance and behavior of the graph through various display options.
+
+. . .
+
+``` {.r code-line-numbers="7|8-11|12-14|15-17|18-19|20-25|26"}
+unemp_data |>
+  select(Date, Primary_School, High_School, Associates_Degree, Professional_Degree) |>
+  dygraph(main = "U.S. Unemployment Trends by Educational Level (2010–2020)",
+          xlab = "Date",
+          ylab = "Unemployment Rate (%)"
+          )|>
+dyOptions(
+  stackedGraph = FALSE,
+  fillGraph = FALSE,
+  stepPlot = FALSE,
+  stemPlot = FALSE,
+  drawPoints = FALSE,
+  pointSize = 2,
+  pointShape = ("square"),
+  strokeWidth = 2,
+  strokeBorderColor = NULL,
+  colors = c("violet", "orange", "royalblue", "forestgreen"),
+  drawXAxis = TRUE,
+  drawYAxis = TRUE,
+  axisTickSize = 3,
+  axisLineColor = "red",
+  axisLineWidth = 0.3,
+  axisLabelColor = "red",
+  axisLabelFontSize = 14,
+  axisLabelWidth = 80,
+  drawGrid = TRUE
+) 
+```
+
+## Plot with `dyOptions()` {auto-animate="true"}
+
+```{r}
+unemp_data |>
+  select(Date, Primary_School, High_School, Associates_Degree, Professional_Degree) |>
+  dygraph(main = "U.S. Unemployment Trends by Educational Level (2010–2020)",
+          xlab = "Date",
+          ylab = "Unemployment Rate (%)"
+          )|>
+dyOptions(
+  stackedGraph = FALSE,
+  fillGraph = FALSE,
+  stepPlot = FALSE,
+  stemPlot = FALSE,
+  drawPoints = FALSE,
+  pointSize = 2,
+  pointShape = ("square"),
+  strokeWidth = 2,
+  strokeBorderColor = NULL,
+  colors = c("violet", "orange", "royalblue", "forestgreen"),
+  drawXAxis = TRUE,
+  drawYAxis = TRUE,
+  axisTickSize = 3,
+  axisLineColor = "red",
+  axisLineWidth = 0.3,
+  axisLabelColor = "red",
+  axisLabelFontSize = 14,
+  axisLabelWidth = 80,
+  drawGrid = TRUE
+) 
+```
+
+## `dyAxis()` {auto-animate="true"}
+
+- Customizes the x- and y-axes (labels, ranges, and gridlines)
+ 
+. . .
+
+``` {.r code-line-numbers="5|6|7|8|9"}
+unemp_data |>
+  select(Date, Men, Women) |>
+  dygraph(main = "Unemployment Rates by Gender") |>
+  dyOptions(colors = c("blue", "red")) |> 
+  dyAxis(
+    "y",
+    label = "Unemployment Rate (%)",
+    valueRange = c(0, 15),
+    drawGrid = TRUE
+  )
+```
+
+::: footer
+Learn more: [dyAxis](https://rstudio.github.io/dygraphs/reference/dyAxis.html?q=dyAxis#null)
+:::
+
+## Plot with `dyAxis`
+
+```{r}
+unemp_data |>
+  select(Date, Men, Women) |>
+  dygraph(main = "Unemployment Rates by Gender") |>
+  dyOptions(colors = c("blue", "red")) |> 
+  dyAxis(
+    "y",
+    label = "Unemployment Rate (%)",
+    valueRange = c(0, 15),
+    drawGrid = TRUE
+  )
+```
+
+::: footer
+Learn more: [dyAxis](https://rstudio.github.io/dygraphs/reference/dyAxis.html?q=dyAxis#null)
+:::
+
+## "group" argument in `dygraph` {auto-animate="true"}
+
+- Allows multiple graphs to be linked together so their date-range selections and zooming stay synchronized.
+
+. . .
+
+``` {.r code-line-numbers="1,7|2,8|3,9|4-5,10"}
+unemp_data |> 
+    select(Date, Men, Women) |> 
+    dygraph(group = "unemployment") |>
+    dyOptions(colors = c("blue", "red")) |> 
+  dyRangeSelector()
+  
+  unemp_data |> 
+    select(Date, Black, White, Hispanic, Asian) |> 
+    dygraph(group = "unemployment") |>
+  dyRangeSelector()
+```
+
+
+## Comparing Plots (with group argument from `dygraph`)
+
+::: {.columns}
+
+::: {.column width="50%"}
+```{r}
+unemp_data |> 
+    select(Date, Men, Women) |> 
+    dygraph(group = "unemployment",
+            main = "U.S. Unemployment Trends by Gender (2010–2020)",
+          xlab = "Date",
+          ylab = "Unemployment Rate (%)") |>
+    dyOptions(colors = c("blue", "red")) |> 
+  dyRangeSelector()
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+unemp_data |> 
+    select(Date, Black, White, Hispanic, Asian) |> 
+    dygraph(group = "unemployment",
+            main = "U.S. Unemployment Trends by Race & Ethnicity (2010–2020)",
+          xlab = "Date",
+          ylab = "Unemployment Rate (%)") |>
+  dyRangeSelector()
+```
+:::
+
+:::
+
+
+## Summary
+
+::: {.incremental .fade-left}
+- `dygraph()` – Creates an interactive time-series graph.
+- `dyRangeSelector()` – Adds a tool to zoom in on date ranges.
+- `dySeries()` – Customizes individual data lines.
+- `dyOptions()` – Customizes overall graph appearance and behavior.
+- `dyAxis()` – Customizes the x- and y-axes.
+:::
+
+::: footer
+Learn more: [dygraphs](https://rstudio.github.io/dygraphs/articles/dygraphs.html)
+:::
+
+
+## Thank You!
+::: {style="text-align: center; margin-top: 1em"}
+[The dygraphs package](https://rstudio.github.io/dygraphs/articles/dygraphs.html){preview-link="true" style="text-align: center"}
+:::
+
+
